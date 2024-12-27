@@ -66,7 +66,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 			chrome.tabs.create({ url: tradelinkOffer });
 			return true;
 
-		case 'pricempire':
+/* 		case 'pricempire':
 			const apiKey = msg.key;
 
 			if (apiKey === null) {
@@ -90,7 +90,52 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 				console.error('Unexpected error:', e);
 				sendResponse({ error: 'Unexpected error' });
 			}
+			break; */
+
+		case 'pricempire':
+			const apiKey = msg.key;
+		
+			if (!apiKey) {
+				console.error('API Key is missing');
+				sendResponse({ error: 'APIKEY for pricempire not found.' });
+				return;
+			}
+		
+			try {
+				const priceProviderURL = 'http://80.240.28.212:42069/prices?source=buff&currency=USD';
+				
+				console.log('Fetching from:', priceProviderURL);
+				console.log('Using API Key:', apiKey);
+		
+				fetch(`${priceProviderURL}`, {
+					method: 'GET',
+					headers: {
+						'x-api-key': apiKey,
+					},
+				})
+				.then(res => {
+					console.log('Response status:', res.status);
+					if (!res.ok) {
+						throw new Error(`HTTP error! Status: ${res.status}`);
+					}
+					return res.json();
+				})
+				.then(data => {
+					console.log('Data received:', data);
+					sendResponse(data);
+				})
+				.catch(error => {
+					console.error('Fetch Error:', error);
+					sendResponse({ error: `Failed to load cached prices from your API: ${error.message}` });
+				});
+		
+				return true;  // Keeps the response open for async operations
+			} catch (e) {
+				console.error('Unexpected error during fetch:', e);
+				sendResponse({ error: `Unexpected error: ${e.message}` });
+			}
 			break;
+			
 
 		case 'open_ws':
 			let id = msg.userid;

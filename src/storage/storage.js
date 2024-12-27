@@ -91,7 +91,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 	}
 
 	if (msg.peApi) {
-		if (msg.peApi.length != 36) {
+		if (msg.peApi.length < 1) {
 			alert(`Please enter valid pricempire API KEY`);
 			console.log(
 				`%c[ROLLHELOPER] -> Please enter valid pricempire API KEY`,
